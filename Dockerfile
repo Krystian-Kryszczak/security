@@ -1,0 +1,20 @@
+FROM openjdk:17
+RUN set -x \
+    mkdir -p /security
+COPY ./build/libs/security-0.1-all.jar /security/
+EXPOSE $SECURITY_PORT
+
+ENV JWT_GENERATOR_SIGNATURE_SECRET='VVUd6u/FWiFV3X6VaFl9U+xdSBBeSQQFwwH+qdIg3xM='
+
+ENV CASSANDRA_HOST=127.0.0.1
+ENV CASSANDRA_PORT=9042
+ENV CASSANDRA_DATA_CENTER=datacenter1
+
+ENV MAILER_GRPC_HOST='192.168.1.12'
+ENV MAILER_GRPC_PORT=50011
+
+ENV KAFKA_HOST=127.0.0.1
+ENV KAFKA_PORT=9092
+
+WORKDIR /security
+CMD ["java", "-jar", "security-0.1-all.jar"]

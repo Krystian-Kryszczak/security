@@ -1,0 +1,57 @@
+micronaut:
+  application:
+    name: security
+  security:
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_GENERATOR_SIGNATURE_SECRET}
+              base64: true
+              jws-algorithm: HS256
+        generator:
+          access-token:
+            expiration: 72000
+  server:
+    port: ${SECURITY_PORT:8000}
+    netty:
+      access-logger:
+        enabled: true
+        log-format: common
+grpc:
+  server:
+    enabled: false
+  client:
+    max-retry-attempts: 10
+  channels:
+    mailer:
+      for-address: ${MAILER_GRPC_HOST:127.0.0.1}:${MAILER_GRPC_PORT:50011}
+      plaintext: true
+      max-retry-attempts: 10
+cassandra:
+  default:
+    advanced:
+      #      ssl: true
+      #      ssl-engine-factory: DefaultSslEngineFactory
+      metadata:
+        schema:
+          enabled: true
+    #      auth-provider:
+    #        class: PlainTextAuthProvider
+    #        username: "XXXXXX"
+    #        password: "XXXXXX"
+    basic:
+      contact-points:
+        - ${CASSANDRA_HOST:127.0.0.1}:${CASSANDRA_PORT:9042}
+      load-balancing-policy:
+        local-datacenter: ${CASSANDRA_DATA_CENTER:datacenter1}
+      session-keyspace: app
+kafka:
+  bootstrap:
+    servers: ${KAFKA_HOST:127.0.0.1}:${KAFKA_PORT:9092}
+netty:
+  default:
+    allocator:
+      max-order: 3
