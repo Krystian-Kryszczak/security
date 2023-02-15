@@ -20,7 +20,7 @@ class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): Maile
         return asObservable<MailerReply> {
             streamObserver -> mailerServiceStub.sendUserActivationCode(request,     streamObserver)
         }.doAfterNext {
-            logger.info("sendUserActivationCode -> ${it.successful}")
+            logger.info("sendUserActivationCode result -> ${it.successful}")
         }.transformToBooleanWithCatchingErrors()
     }
 
@@ -29,7 +29,7 @@ class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): Maile
         return asObservable<MailerReply> {
             streamObserver -> mailerServiceStub.sendUserResetPasswordCode(request, streamObserver)
         }.doAfterNext {
-            logger.info("sendUserResetPasswordCode -> ${it.successful}")
+            logger.info("sendUserResetPasswordCode result -> ${it.successful}")
         }.transformToBooleanWithCatchingErrors()
     }
 
@@ -46,7 +46,6 @@ class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): Maile
     private fun Observable<MailerReply>.transformToBooleanWithCatchingErrors() =
         firstElement()
             .map {
-                logger.info("sendUserResetPasswordCode -> ${it.successful}")
                 it.successful
             }
             .defaultIfEmpty(false)

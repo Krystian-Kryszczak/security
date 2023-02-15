@@ -8,7 +8,7 @@ import jakarta.inject.Singleton
 import java.util.UUID
 
 @Singleton
-class UserServiceCassandra(private val userDao: UserDao): UserService {
+class CassandraUserService(private val userDao: UserDao): UserService {
     override fun saveReactive(user: User): Completable = Completable.fromPublisher(userDao.saveReactive(user))
     override fun findByIdReactive(id: UUID): Maybe<User> = Maybe.fromPublisher(userDao.findByIdAsync(id))
     override fun findByEmailReactive(email: String): Maybe<User> = Maybe.fromPublisher(userDao.findByEmailReactive(email))
