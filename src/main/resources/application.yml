@@ -21,8 +21,6 @@ micronaut:
         enabled: true
         log-format: common
 grpc:
-  server:
-    enabled: false
   client:
     max-retry-attempts: 10
   channels:

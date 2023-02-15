@@ -7,6 +7,13 @@ object EmailValidator {
      */
     fun validate(email: String): Boolean {
         if (email.isBlank()) return false
-        return email.matches(Regex("^(.+)@(\\S+)$"))
+        if (! email.matches(Regex("^(.+)@(\\S+)$"))) return false
+        return email.hasOnlyOneAtSign()
+                && email.hasOnlyOneDotAfterAtSign()
+                    && email.endsWithCorrectSuffix() // TODO refactor
     }
+
+    private fun String.hasOnlyOneAtSign() = this.count { it == '@' } == 1
+    private fun String.hasOnlyOneDotAfterAtSign() = this.substringAfter('@').count { it == '.' } == 1
+    private fun String.endsWithCorrectSuffix() = this.substringAfter('@').matches(Regex("[a-zA-Z]+\\.[a-zA-Z]+"))
 }

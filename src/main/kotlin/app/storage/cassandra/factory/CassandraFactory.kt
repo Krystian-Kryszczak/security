@@ -22,7 +22,7 @@ class CassandraFactory(cqlSession: CqlSession) {
         return daoMapper.userDao(keyspace)
     }
     @Singleton
-    fun activationCodeDao(): UserActivationDao {
+    fun userActivationDao(): UserActivationDao {
         return daoMapper.activationCodeDao(keyspace)
     }
     @Singleton

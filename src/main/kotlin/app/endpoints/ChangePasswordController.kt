@@ -10,21 +10,30 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 import io.reactivex.rxjava3.core.Single
+import java.util.UUID
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller
 class ChangePasswordController(private val accountService: AccountService) {
-    @Post("/change-password/", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
-    fun changePassword(oldPassword: String, authentication: Authentication): Single<HttpStatus> {
+    @Post("/change-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
+    fun changePassword(oldPassword: String, authentication: Authentication): Single<HttpStatus> =
+        runProvidesClientId(authentication) {
+            id -> accountService.generateChangeUserPasswordCode(id, oldPassword)
+                    .mapToIfTrueAcceptedElseConflictStatus()
+        }
+
+    @Post("/reset-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
+    fun resetUserPassword(code: String, password: String, authentication: Authentication): Single<HttpStatus> =
+        runProvidesClientId(authentication) {
+            id -> accountService.changeUserPasswordIfArgsMatchesAndAreValid(id, code, password)
+                    .mapToIfTrueAcceptedElseConflictStatus()
+        }
+
+    private inline fun runProvidesClientId(authentication: Authentication, crossinline body: (id: UUID) -> Single<HttpStatus>): Single<HttpStatus> {
         val id = SecurityUtils.getClientId(authentication) ?: return Single.just(HttpStatus.CONFLICT)
-        return accountService.generateChangeUserPasswordCode(id, oldPassword)
-            .map { if (it) HttpStatus.OK else HttpStatus.CONFLICT }
+        return body.invoke(id)
     }
 
-    @Post("/reset-password/", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
-    fun resetUserPassword(code: String, password: String, authentication: Authentication): Single<HttpStatus> {
-        val id = SecurityUtils.getClientId(authentication) ?: return Single.just(HttpStatus.CONFLICT)
-        return accountService.changeUserPassword(id, code, password)
-            .map { if (it) HttpStatus.ACCEPTED else HttpStatus.CONFLICT }
-    }
+    private fun Single<Boolean>.mapToIfTrueAcceptedElseConflictStatus() =
+        map { if (it) HttpStatus.ACCEPTED else HttpStatus.CONFLICT }
 }

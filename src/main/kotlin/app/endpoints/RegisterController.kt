@@ -18,20 +18,23 @@ class RegisterController(private val accountService: AccountService) {
 
     @Post(value = "/register", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun register(email: String, name: String, lastname: String, password: String): Single<HttpStatus> {
-        return accountService.registerUser( // TODO add other infos like dateOfBirth
-            UserModel(
+        return accountService.registerUser( // TODO add other info like dateOfBirth
+            UserModel( // TODO refactor it
                 firstname= name,
                 lastname = lastname,
                 email = email,
                 password = password
             )
-        ).map  { if (it) HttpStatus.ACCEPTED else HttpStatus.CONFLICT }
+        ).mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.ACCEPTED)
     }
 
-    @Post(value = "/activate-account/", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
+    @Post(value = "/activate-account", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun activateAccount(email: String, code: String): Single<HttpStatus> =
         accountService.completeActivationUserAccount(email, code)
-            .map { if (it) HttpStatus.CREATED else HttpStatus.CONFLICT }
+            .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.CREATED)
+
+    private fun Single<Boolean>.mapToStatusOnSuccessfulOtherwiseToConflictStatus(onSuccess: HttpStatus) =
+        map { if (it) onSuccess else HttpStatus.CONFLICT }
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RegisterController::class.java)

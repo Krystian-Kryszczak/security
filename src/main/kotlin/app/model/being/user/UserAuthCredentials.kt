@@ -1,6 +1,6 @@
-package app.model.reset
+package app.model.being.user
 
-import app.security.generator.reset.ResetPasswordCodeGenerator
+import app.model.Item
 import com.datastax.oss.driver.api.mapper.annotations.Entity
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey
 import com.datastax.oss.driver.api.mapper.annotations.SchemaHint
@@ -8,8 +8,9 @@ import java.util.UUID
 
 @Entity
 @SchemaHint(targetElement = SchemaHint.TargetElement.TABLE)
-data class ResetPassword(
+class UserAuthCredentials(
     @PartitionKey
-    var code: String = ResetPasswordCodeGenerator.generateCode(),
-    var id: UUID? = null
-)
+    override var id: UUID? = null,
+    var email: String? = null,
+    var hashedPassword: String? = null,
+): Item(id)

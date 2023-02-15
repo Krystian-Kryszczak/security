@@ -5,7 +5,7 @@ import io.micronaut.configuration.kafka.annotation.KafkaKey
 import io.micronaut.configuration.kafka.annotation.Topic
 
 @KafkaClient
-interface AnalyticsClient {
+interface KafkaAnalyticsClient {
     @Topic("login_attempts")
     fun sendLoginAttempts(@KafkaKey datetime: String, value: String)
     @Topic("login_successful")

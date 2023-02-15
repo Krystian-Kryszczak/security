@@ -12,57 +12,29 @@ import org.slf4j.LoggerFactory
 
 @Singleton
 class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): MailerService {
-    override fun sendUserActivationCode(address: String, code: String): Single<Boolean> {
-        val request: MailerRequest = MailerRequest.newBuilder().setAddress(address).setContent(code).build()
-        // ---------------------------------------------------------------------------------------------------- //
-        return asObservable<MailerReply> { mailerServiceStub.sendUserActivationCode(request, it) }.firstElement().map {
+    private fun requestWithAddressAndContent(receiverAddress: String, content: String): MailerRequest =
+        MailerRequest.newBuilder().setAddress(receiverAddress).setContent(content).build()
+
+    override fun sendUserActivationCode(receiverAddress: String, activationCode: String): Single<Boolean> {
+        val request = requestWithAddressAndContent(receiverAddress, activationCode)
+        return asObservable<MailerReply> {
+            streamObserver -> mailerServiceStub.sendUserActivationCode(request,     streamObserver)
+        }.doAfterNext {
             logger.info("sendUserActivationCode -> ${it.successful}")
-            it.successful
-        }.defaultIfEmpty(false).onErrorReturn {
-            logger.error(it.message)
-            return@onErrorReturn false
-        }
+        }.transformToBooleanWithCatchingErrors()
     }
 
-//    private fun sendUserActivationCode2(address: String, code: String): Single<Boolean> {
-//        val request: MailerRequest = MailerRequest.newBuilder().setAddress(address).setContent(code).build()
-//        // ---------------------------------------------------------------------------------------------------- //
-//        return asObservable<MailerReply> { mailerServiceStub.sendUserActivationCode(request, it) }
-//            .firstElement() .map {
-//                logger.info("sendUserActivationCode -> ${it.successful}")
-//                it.successful
-//            }.defaultIfEmpty(false).onErrorReturn {
-//                logger.error(it.message)
-//                return@onErrorReturn false
-//            }
-//    }
-
-    override fun sendUserResetPasswordCode(address: String, code: String): Single<Boolean> {
-        val request: MailerRequest = MailerRequest.newBuilder().setAddress(address).setContent(code).build()
-        // ---------------------------------------------------------------------------------------------------- //
-        return Single.create<MailerReply> {
-            val observer = object: StreamObserver<MailerReply> {
-                override fun onNext(value: MailerReply) {
-                    it.onSuccess(value)
-                }
-                override fun onError(t: Throwable) {
-                    it.onError(t)
-                }
-                override fun onCompleted() {}
-            }
-            mailerServiceStub.sendUserResetPasswordCode(request, observer)
-        }.map {
+    override fun sendUserResetPasswordCode(receiverAddress: String, resetPasswordCode: String): Single<Boolean> {
+        val request = requestWithAddressAndContent(receiverAddress, resetPasswordCode)
+        return asObservable<MailerReply> {
+            streamObserver -> mailerServiceStub.sendUserResetPasswordCode(request, streamObserver)
+        }.doAfterNext {
             logger.info("sendUserResetPasswordCode -> ${it.successful}")
-            it.successful
-        }
-        .onErrorReturn {
-            logger.error(it.message)
-            return@onErrorReturn false
-        }
+        }.transformToBooleanWithCatchingErrors()
     }
 
-    private inline fun <T : Any> asObservable(crossinline body: (StreamObserver<T>) -> Unit): Observable<T> {
-        return Observable.create { subscription ->
+    private inline fun <T : Any> asObservable(crossinline body: (StreamObserver<T>) -> Unit): Observable<T> =
+        Observable.create { subscription ->
             val observer = object : StreamObserver<T> {
                 override fun onNext(value: T) = subscription.onNext(value)
                 override fun onError(error: Throwable) = subscription.onError(error)
@@ -70,18 +42,18 @@ class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): Maile
             }
             body(observer)
         }
-    }
 
-    private inline fun <T : Any> asSingle(crossinline body: (StreamObserver<T>) -> Unit): Single<T> {
-        return Single.create { subscription ->
-            val observer = object : StreamObserver<T> {
-                override fun onNext(value: T) = subscription.onSuccess(value)
-                override fun onError(error: Throwable) = subscription.onError(error)
-                override fun onCompleted() {}
+    private fun Observable<MailerReply>.transformToBooleanWithCatchingErrors() =
+        firstElement()
+            .map {
+                logger.info("sendUserResetPasswordCode -> ${it.successful}")
+                it.successful
             }
-            body(observer)
-        }
-    }
+            .defaultIfEmpty(false)
+            .onErrorReturn {
+                logger.error(it.message)
+                return@onErrorReturn false
+            }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(MailerServiceGrpc::class.java)

@@ -14,12 +14,12 @@ class JwtAttributesController {
     fun readAttributes(authentication: Authentication): Map<String, Any> {
         val attributes = authentication.attributes
         val outputData = mutableMapOf<String, Any>()
-        val clientId = SecurityUtils.getClientId(authentication)
 
+        val clientId = SecurityUtils.getClientId(authentication)
         if (clientId != null) outputData["id"] = clientId
-        val extracted = SecurityUtils.extractAttributes(attributes, listOf(
-            "email", "name", "lastname"
-        ))
+
+        val attributesToExtract = listOf("email", "name", "lastname")
+        val extracted = SecurityUtils.extractAttributes(attributes, attributesToExtract)
         outputData.putAll(extracted)
 
         return outputData
