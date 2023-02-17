@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.mapper.annotations.SchemaHint
 
 @Entity
 @SchemaHint(targetElement = SchemaHint.TargetElement.UDT)
-class UserModel(
+class UserModel( // TODO add other info like dateOfBirth
     var firstname: String? = null,
     var lastname: String? = null,
     var email: String? = null,

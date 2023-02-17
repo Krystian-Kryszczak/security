@@ -17,21 +17,14 @@ import org.slf4j.LoggerFactory
 class RegisterController(private val accountService: AccountService) {
 
     @Post(value = "/register", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
-    fun register(email: String, name: String, lastname: String, password: String): Single<HttpStatus> {
-        return accountService.registerUser( // TODO add other info like dateOfBirth
-            UserModel( // TODO refactor it
-                firstname= name,
-                lastname = lastname,
-                email = email,
-                password = password
-            )
-        ).mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.ACCEPTED)
-    }
+    fun register(userModel: UserModel): Single<HttpStatus> =
+        accountService.registerUser(userModel)
+        .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.ACCEPTED)
 
     @Post(value = "/activate-account", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun activateAccount(email: String, code: String): Single<HttpStatus> =
         accountService.completeActivationUserAccount(email, code)
-            .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.CREATED)
+        .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.CREATED)
 
     private fun Single<Boolean>.mapToStatusOnSuccessfulOtherwiseToConflictStatus(onSuccess: HttpStatus) =
         map { if (it) onSuccess else HttpStatus.CONFLICT }

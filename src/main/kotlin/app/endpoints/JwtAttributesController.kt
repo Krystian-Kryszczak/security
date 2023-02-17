@@ -19,9 +19,12 @@ class JwtAttributesController {
         if (clientId != null) outputData["id"] = clientId
 
         val attributesToExtract = listOf("email", "name", "lastname")
-        val extracted = SecurityUtils.extractAttributes(attributes, attributesToExtract)
+        val extracted = extractAttributes(attributes, attributesToExtract)
         outputData.putAll(extracted)
 
         return outputData
     }
+
+    private fun extractAttributes(allAttributes: Map<String, Any>, attributesToExtract: List<String>): Map<String, Any> =
+        allAttributes.filter { attributesToExtract.contains(it.key) }
 }

@@ -19,19 +19,19 @@ class ChangePasswordController(private val accountService: AccountService) {
     fun changePassword(oldPassword: String, authentication: Authentication): Single<HttpStatus> =
         runProvidesClientId(authentication) {
             id -> accountService.generateChangeUserPasswordCode(id, oldPassword)
-                    .mapToIfTrueAcceptedElseConflictStatus()
+                .mapToIfTrueAcceptedElseConflictStatus()
         }
 
     @Post("/reset-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun resetUserPassword(code: String, password: String, authentication: Authentication): Single<HttpStatus> =
         runProvidesClientId(authentication) {
             id -> accountService.changeUserPasswordIfArgsMatchesAndAreValid(id, code, password)
-                    .mapToIfTrueAcceptedElseConflictStatus()
+                .mapToIfTrueAcceptedElseConflictStatus()
         }
 
     private inline fun runProvidesClientId(authentication: Authentication, crossinline body: (id: UUID) -> Single<HttpStatus>): Single<HttpStatus> {
         val id = SecurityUtils.getClientId(authentication) ?: return Single.just(HttpStatus.CONFLICT)
-        return body.invoke(id)
+        return body(id)
     }
 
     private fun Single<Boolean>.mapToIfTrueAcceptedElseConflictStatus() =

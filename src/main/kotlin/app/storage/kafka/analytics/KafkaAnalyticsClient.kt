@@ -1,4 +1,4 @@
-package app.storage.broker.analytics
+package app.storage.kafka.analytics
 
 import io.micronaut.configuration.kafka.annotation.KafkaClient
 import io.micronaut.configuration.kafka.annotation.KafkaKey

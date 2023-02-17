@@ -1,6 +1,6 @@
 package app.service.analytics
 
-import app.storage.broker.analytics.KafkaAnalyticsClient
+import app.storage.kafka.analytics.KafkaAnalyticsClient
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import java.time.Instant

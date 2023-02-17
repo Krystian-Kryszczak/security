@@ -1,4 +1,4 @@
-package app.service.mailer
+package app.service.mailer.smtp
 
 import app.MailerReply
 import app.MailerRequest
@@ -11,7 +11,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @Singleton
-class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): MailerService {
+class SmtpMailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): SmtpMailerService {
     private fun requestWithAddressAndContent(receiverAddress: String, content: String): MailerRequest =
         MailerRequest.newBuilder().setAddress(receiverAddress).setContent(content).build()
 
@@ -55,6 +55,6 @@ class MailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): Maile
             }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(MailerServiceGrpc::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(SmtpMailerServiceGrpc::class.java)
     }
 }

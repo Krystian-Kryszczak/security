@@ -7,7 +7,7 @@ import app.security.encoder.PasswordEncoder
 import app.security.validation.PasswordValidator
 import app.service.analytics.MetricsService
 import app.service.being.user.UserService
-import app.service.mailer.MailerService
+import app.service.mailer.smtp.SmtpMailerService
 import app.storage.cassandra.dao.activation.UserActivationDao
 import app.storage.cassandra.dao.reset.ResetPasswordDao
 import io.reactivex.rxjava3.core.Completable
@@ -26,7 +26,7 @@ class AccountServiceImpl(
     private val resetPasswordDao: ResetPasswordDao,
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder,
-    private val mailerService: MailerService,
+    private val smtpMailerService: SmtpMailerService,
 ): AccountService {
     override fun registerUser(userModel: UserModel): Single<Boolean> {
         if (!PasswordValidator.validate(userModel.password)) {
@@ -38,7 +38,7 @@ class AccountServiceImpl(
             .flatMap { code -> run {
                 val email: String = userModel.email ?: return@run Single.just(false)
                 logger.info("The activation code `$code` will be sent to the email address $email")
-                mailerService.sendUserActivationCode(email, code)
+                smtpMailerService.sendUserActivationCode(email, code)
             }}.onErrorReturn {
                 it.printStackTrace()
                 return@onErrorReturn false
@@ -99,7 +99,7 @@ class AccountServiceImpl(
                 }
             }.flatMapSingle { user ->
                 Completable.fromPublisher(resetPasswordDao.saveReactive(resetPassword))
-                    .andThen(if (user.email != null) mailerService.sendUserResetPasswordCode(user.email!!, resetPassword.code) else Single.just(false))
+                    .andThen(if (user.email != null) smtpMailerService.sendUserResetPasswordCode(user.email!!, resetPassword.code) else Single.just(false))
             }.defaultIfEmpty(false).onErrorReturnItem(false)
     }
 

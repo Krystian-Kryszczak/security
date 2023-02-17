@@ -34,12 +34,12 @@ class JwtAuthenticationProvider(
                 run {
                     authMetrics.incrementLoginSuccessful()
                     logger.info("New successful login user with email $login")
-                    return@run AuthenticationResponse.success(login, getAttributes(user))
+                    return@run AuthenticationResponse.success(login, extractUserAttributes(user))
                 }
             }.switchIfEmpty(Single.just(AuthenticationFailed(CREDENTIALS_DO_NOT_MATCH))).toFlowable()
     }
 
-    private fun getAttributes(user: User): Map<String, String> = mapOf(
+    private fun extractUserAttributes(user: User): Map<String, String> = mapOf(
             "id" to user.id.toString(),
             "name" to (user.name ?: ""),
             "lastname" to (user.lastname ?: "")

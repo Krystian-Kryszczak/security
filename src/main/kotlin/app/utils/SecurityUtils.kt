@@ -7,8 +7,4 @@ object SecurityUtils {
     fun getClientId(authentication: Authentication): UUID? {
         return UUID.fromString(authentication.attributes["id"] as String? ?: return null)
     }
-    fun extractAttributes(allAttributes: Map<String, Any>, attributesToExtract: List<String>): Map<String, Any> =
-        allAttributes.filter {
-            attributesToExtract.contains(it.key)
-        }
 }

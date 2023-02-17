@@ -1,4 +1,7 @@
 package app.service.mailer.pop
 
-class PopMailerServiceGrpc {
+import jakarta.inject.Singleton
+
+@Singleton
+class PopMailerServiceGrpc: PopMailerService {
 }
