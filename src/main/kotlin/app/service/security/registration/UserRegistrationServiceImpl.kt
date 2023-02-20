@@ -8,7 +8,6 @@ import app.service.analytics.MetricsService
 import app.service.being.user.UserService
 import app.service.mailer.smtp.SmtpMailerService
 import app.storage.cassandra.dao.security.activation.UserAccountActivationDao
-import app.storage.cassandra.dao.security.reset.ResetPasswordDao
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory
 class UserRegistrationServiceImpl(
     private val metricsService: MetricsService,
     private val activationCodeDao: UserAccountActivationDao,
-    private val resetPasswordDao: ResetPasswordDao,
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder,
     private val smtpMailerService: SmtpMailerService,
@@ -28,9 +26,9 @@ class UserRegistrationServiceImpl(
     override fun registerUser(userModel: UserModel): Single<Boolean> {
         if (!PasswordValidator.validate(userModel.password)) {
             logger.info("Invalid user password!${if (userModel.email != null) " User email: ${userModel.email}" else ""}")
-            return Single.just(false) // return false if password is invalid!
+            return Single.just(false)
         }
-        userModel.password = passwordEncoder.encode(userModel.password!!) // important
+        userModel.password = passwordEncoder.encode(userModel.password!!)
         return generateActivationCodeForUser(userModel)
             .flatMap { code -> run {
                 val email: String = userModel.email ?: return@run Single.just(false)
@@ -46,25 +44,25 @@ class UserRegistrationServiceImpl(
         activationCodeMatches(email, code)
             .flatMapSingle {
                     activation -> run {
-                val user = activation.mapToUser() ?: return@run Single.just(false) // Activation failed //
-                Completable.fromPublisher(activationCodeDao.deleteReactive(activation)) // Delete activation //
-                    .andThen(userService.saveReactive(user)) // ... and save user //
+                val user = activation.mapToUser() ?: return@run Single.just(false)
+                Completable.fromPublisher(activationCodeDao.deleteReactive(activation))
+                    .andThen(userService.saveReactive(user))
                     .doOnComplete {
                         logger.info("Successful activated account with email $email")
-                        metricsService.incrementActivatedAccounts() // increment successful activated account metric //
-                    }.toSingleDefault(true) // Activation successful //
+                        metricsService.incrementActivatedAccounts()
+                    }.toSingleDefault(true)
                     .onErrorReturn {
                         it.printStackTrace()
-                        metricsService.incrementActivationAccountFails() // increment activation accounts fails metric //
-                        return@onErrorReturn false // Activation failed //
+                        metricsService.incrementActivationAccountFails()
+                        return@onErrorReturn false
                     }
             }
             }.switchIfEmpty(Single.create {
-                metricsService.incrementActivationAccountFails() // increment activation accounts fails metric //
-                it.onSuccess(false) // Activation failed //
+                metricsService.incrementActivationAccountFails()
+                it.onSuccess(false)
             }).onErrorReturn {
-                metricsService.incrementActivationAccountFails() // increment activation accounts fails metric //
-                return@onErrorReturn false // Activation failed //
+                metricsService.incrementActivationAccountFails()
+                return@onErrorReturn false
             }
 
     private fun generateActivationCodeForUser(userModel: UserModel): Single<String> {
@@ -75,7 +73,7 @@ class UserRegistrationServiceImpl(
         return Completable.fromPublisher(activationCodeDao.saveReactive(activation))
             .doOnComplete {
                 metricsService.incrementGeneratedActivationCodes()
-            }.toSingleDefault(activation.code)
+            }.toSingleDefault(activation.code!!)
     }
 
     private fun activationCodeMatches(userEmail: String, code: String): Maybe<UserAccountActivation> =
