@@ -8,10 +8,10 @@ import io.micronaut.security.authentication.AuthenticationFailed
 import io.micronaut.security.authentication.AuthenticationFailureReason
 import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
+import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import jakarta.inject.Singleton
-import org.reactivestreams.Publisher
 
 @Singleton
 class AuthenticationServiceImpl(
@@ -19,13 +19,13 @@ class AuthenticationServiceImpl(
     private val userService: UserService,
     private val passwordEncoder: PasswordEncoder,
 ): AuthenticationService {
-    override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>): Publisher<AuthenticationResponse> {
+    override fun authenticate(authenticationRequest: AuthenticationRequest<*, *>): Flowable<AuthenticationResponse> {
         val login: String = authenticationRequest.identity.toString() // username
         val password: String = authenticationRequest.secret.toString() // password
 
         return Maybe.fromPublisher(userCredentialsDao.findByEmailReactive(login))
             .flatMap { credentials ->
-                if (credentials.hashedPassword != null && passwordEncoder.matches(password, credentials.hashedPassword!!)) Maybe.just(credentials) else Maybe.empty()
+                if (credentials.hashedPassword != null && passwordEncoder.matches(password, credentials.hashedPassword)) Maybe.just(credentials) else Maybe.empty()
             }.flatMap {
                 userService.findByEmailReactive(login).map {
                     user -> AuthenticationResponse.success(login, extractUserAttributes(user))

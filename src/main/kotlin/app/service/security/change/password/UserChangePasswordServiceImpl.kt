@@ -21,13 +21,13 @@ class UserChangePasswordServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val smtpMailerService: SmtpMailerService,
 ): UserChangePasswordService {
-    override fun generateChangeUserPasswordCode(id: UUID, oldPassword: String): Maybe<String> {
+    override fun generateChangeUserPasswordCode(id: UUID, oldPassword: String): Maybe<ResetPassword> {
         if (!PasswordValidator.validate(oldPassword)) return Maybe.empty()
         return Maybe.fromPublisher(userCredentialsDao.findByIdReactive(id))
             .flatMap {
                 if (passwordEncoder.matches(oldPassword, it.hashedPassword ?: return@flatMap Maybe.empty())) {
                     val resetPassword = ResetPassword.createWithGeneratedCode(id)
-                    if (resetPassword.code != null) Maybe.just(resetPassword.code) else Maybe.empty()
+                    if (resetPassword.code != null) Maybe.just(resetPassword) else Maybe.empty()
                 } else {
                     Maybe.empty()
                 }

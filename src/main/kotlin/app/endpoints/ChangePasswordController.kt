@@ -1,6 +1,6 @@
 package app.endpoints
 
-import app.service.account.AccountService
+import app.service.security.change.password.UserChangePasswordService
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
@@ -12,18 +12,24 @@ import io.reactivex.rxjava3.core.Single
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller
-class ChangePasswordController(private val accountService: AccountService): BaseController() {
+class ChangePasswordController(private val changePasswordService: UserChangePasswordService): BaseController() {
     @Post("/change-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun changePassword(oldPassword: String, authentication: Authentication): Single<HttpStatus> =
         runProvidesClientId(authentication) {
-            id -> accountService.generateChangeUserPasswordCode(id, oldPassword)
+            id -> changePasswordService.generateChangeUserPasswordCode(id, oldPassword)
+                .flatMapSingle {
+                    code -> changePasswordService.saveResetPassword(code)
+                        .flatMap {
+                            changePasswordService.sendChangeUserPasswordCodeToEmail(code, oldPassword)
+                        }
+                }.defaultIfEmpty(false)
                 .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
         }
 
     @Post("/reset-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun resetUserPassword(code: String, password: String, authentication: Authentication): Single<HttpStatus> =
         runProvidesClientId(authentication) {
-            id -> accountService.changeUserPasswordIfArgsMatchesAndAreValid(id, code, password)
+            id -> changePasswordService.changeUserPassword(id, code, password)
                 .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
         }
 }

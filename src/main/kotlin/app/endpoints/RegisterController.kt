@@ -1,7 +1,7 @@
 package app.endpoints
 
 import app.model.being.user.UserModel
-import app.service.account.AccountService
+import app.service.security.registration.UserRegistrationService
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Controller
@@ -14,16 +14,16 @@ import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller
-class RegisterController(private val accountService: AccountService): BaseController() {
+class RegisterController(private val registrationService: UserRegistrationService): BaseController() {
 
     @Post(value = "/register", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun register(userModel: UserModel): Single<HttpStatus> =
-        accountService.registerUser(userModel)
+        registrationService.registerUser(userModel)
         .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
 
     @Post(value = "/activate-account", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun activateAccount(email: String, code: String): Single<HttpStatus> =
-        accountService.completeActivationUserAccount(email, code)
+        registrationService.completeActivationUserAccount(email, code)
         .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
 
     companion object {

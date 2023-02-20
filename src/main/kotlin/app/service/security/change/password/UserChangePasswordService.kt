@@ -6,7 +6,7 @@ import io.reactivex.rxjava3.core.Single
 import java.util.UUID
 
 interface UserChangePasswordService {
-    fun generateChangeUserPasswordCode(id: UUID, oldPassword: String): Maybe<String>
+    fun generateChangeUserPasswordCode(id: UUID, oldPassword: String): Maybe<ResetPassword>
     fun saveResetPassword(resetPassword: ResetPassword): Single<Boolean>
     fun sendChangeUserPasswordCodeToEmail(resetPassword: ResetPassword, email: String): Single<Boolean>
     fun changeUserPassword(id: UUID, resetPasswordCode: String, newPassword: String): Single<Boolean>

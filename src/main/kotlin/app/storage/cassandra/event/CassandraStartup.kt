@@ -41,7 +41,7 @@ class CassandraStartup(private val cqlSession: CqlSession) {
     )
     private fun createUserCredentialsTable() = execute(
         SchemaBuilder
-            .createTable("user_credentials")
+            .createTable("user_credentials").ifNotExists()
             .withPartitionKey("id", DataTypes.TIMEUUID)
             .withColumn("identity", DataTypes.TEXT)
             .withColumn("hashed_password", DataTypes.TEXT)

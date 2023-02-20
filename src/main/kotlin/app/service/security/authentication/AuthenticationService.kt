@@ -2,8 +2,8 @@ package app.service.security.authentication
 
 import io.micronaut.security.authentication.AuthenticationRequest
 import io.micronaut.security.authentication.AuthenticationResponse
-import org.reactivestreams.Publisher
+import io.reactivex.rxjava3.core.Flowable
 
 interface AuthenticationService {
-    fun authenticate(authenticationRequest: AuthenticationRequest<*, *>): Publisher<AuthenticationResponse>
+    fun authenticate(authenticationRequest: AuthenticationRequest<*, *>): Flowable<AuthenticationResponse>
 }
