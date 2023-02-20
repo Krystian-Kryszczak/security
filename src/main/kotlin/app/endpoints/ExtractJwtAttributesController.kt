@@ -8,18 +8,17 @@ import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
-@Controller("/user-attributes")
-class JwtAttributesController {
+@Controller("/extract-attributes")
+class ExtractJwtAttributesController {
     @Get
     fun readAttributes(authentication: Authentication): Map<String, Any> {
         val attributes = authentication.attributes
         val outputData = mutableMapOf<String, Any>()
 
-        val clientId = SecurityUtils.getClientId(authentication)
-        if (clientId.isPresent)
-            outputData["id"] = clientId.get()
+        val clientId = SecurityUtils.extractClientId(authentication)
+        if (clientId != null)
+            outputData["id"] = clientId
 
-        val attributesToExtract = listOf("email", "name", "lastname")
         val extracted = extractAttributes(attributes, attributesToExtract)
         outputData.putAll(extracted)
 
@@ -27,5 +26,11 @@ class JwtAttributesController {
     }
 
     private fun extractAttributes(allAttributes: Map<String, Any>, attributesToExtract: List<String>): Map<String, Any> =
-        allAttributes.filter { attributesToExtract.contains(it.key) }
+        allAttributes.filter {
+            singleFromAllAttributes -> attributesToExtract.contains(singleFromAllAttributes.key)
+        }
+
+    companion object {
+        val attributesToExtract = listOf("email", "name", "lastname")
+    }
 }

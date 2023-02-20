@@ -21,15 +21,15 @@ class GrpcClients(
 ) {
     @Singleton
     fun mailer(): MailerServiceGrpc.MailerServiceStub {
-        val builder = ManagedChannelBuilder.forTarget(mailerAddress)
+        var builder = ManagedChannelBuilder.forTarget(mailerAddress)
 
         if (mailerUsePlaintext.toBooleanStrictOrNull() == true)
-            builder.usePlaintext()
+            builder = builder.usePlaintext()
 
         val mailerMaxRetryAttempts = mailerMaxRetryAttempts.toIntOrNull()
             ?: clientMaxRetryAttemptsAsInt
         if (mailerMaxRetryAttempts != null)
-            builder.maxRetryAttempts(mailerMaxRetryAttempts)
+            builder = builder.maxRetryAttempts(mailerMaxRetryAttempts)
 
         return MailerServiceGrpc.newStub(builder.build())
     }

@@ -1,6 +1,6 @@
 package app.service.account
 
-import app.model.activation.UserActivation
+import app.model.activation.being.user.UserAccountActivation
 import app.model.being.user.UserModel
 import app.model.reset.ResetPassword
 import app.security.encoder.PasswordEncoder
@@ -46,7 +46,7 @@ class AccountServiceImpl(
     }
 
     private fun generateActivationCodeForUser(userModel: UserModel): Single<String> {
-        val activation = UserActivation(
+        val activation = UserAccountActivation(
             userEmail = userModel.email,
             userModel = userModel,
         )
@@ -56,7 +56,7 @@ class AccountServiceImpl(
             }.toSingleDefault(activation.code)
     }
 
-    private fun activationCodeMatches(userEmail: String, code: String): Maybe<UserActivation> =
+    private fun activationCodeMatches(userEmail: String, code: String): Maybe<UserAccountActivation> =
         Maybe.fromPublisher(activationCodeDao.findByEmailAndCodeReactive(userEmail, code))
 
     override fun completeActivationUserAccount(email: String, code: String): Single<Boolean> =

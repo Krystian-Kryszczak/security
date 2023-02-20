@@ -8,7 +8,6 @@ import io.micronaut.rxjava3.http.client.Rx3HttpClient
 import io.micronaut.test.extensions.kotest.annotation.MicronautTest
 import java.net.URI
 
-
 @MicronautTest
 class ChangePasswordControllerTest(
     @Client("/") private val rx3HttpClient: Rx3HttpClient,

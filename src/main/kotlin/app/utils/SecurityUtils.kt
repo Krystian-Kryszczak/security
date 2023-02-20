@@ -1,16 +1,22 @@
 package app.utils
 
 import io.micronaut.security.authentication.Authentication
-import java.util.Optional
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
-object SecurityUtils {
-    fun getClientId(authentication: Authentication): Optional<UUID> {
-        val stringId = authentication.attributes["id"] as String? ?: return Optional.empty()
-        try {
-            val uuid = UUID.fromString(stringId)
-            return Optional.of(uuid)
-        } catch (_: IllegalArgumentException) {}
-        return Optional.empty()
+class SecurityUtils {
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(SecurityUtils::class.java)
+
+        fun extractClientId(authentication: Authentication): UUID? {
+            val stringId = authentication.attributes["id"] as String? ?: return null
+            return try {
+                UUID.fromString(stringId)
+            } catch (e: IllegalArgumentException) {
+                logger.error(e.message)
+                null
+            }
+        }
     }
 }

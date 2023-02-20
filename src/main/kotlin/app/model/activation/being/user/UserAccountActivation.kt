@@ -1,4 +1,4 @@
-package app.model.activation
+package app.model.activation.being.user
 
 import app.model.being.user.User
 import app.model.being.user.UserModel
@@ -11,7 +11,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Transient
 
 @Entity
 @SchemaHint(targetElement = SchemaHint.TargetElement.TABLE)
-data class UserActivation(
+data class UserAccountActivation(
     @PartitionKey
     var code: String = ActivationAccountCodeGenerator.generateCode(),
     var userEmail: String? = null,

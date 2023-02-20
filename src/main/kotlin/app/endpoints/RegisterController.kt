@@ -14,20 +14,17 @@ import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller
-class RegisterController(private val accountService: AccountService) {
+class RegisterController(private val accountService: AccountService): BaseController() {
 
     @Post(value = "/register", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun register(userModel: UserModel): Single<HttpStatus> =
         accountService.registerUser(userModel)
-        .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.ACCEPTED)
+        .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
 
     @Post(value = "/activate-account", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
     fun activateAccount(email: String, code: String): Single<HttpStatus> =
         accountService.completeActivationUserAccount(email, code)
-        .mapToStatusOnSuccessfulOtherwiseToConflictStatus(HttpStatus.CREATED)
-
-    private fun Single<Boolean>.mapToStatusOnSuccessfulOtherwiseToConflictStatus(onSuccess: HttpStatus) =
-        map { if (it) onSuccess else HttpStatus.CONFLICT }
+        .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
 
     companion object {
         val logger: Logger = LoggerFactory.getLogger(RegisterController::class.java)
