@@ -1,5 +1,5 @@
 package app.model.security.code
 
-interface Code {
+interface HaveCode {
     val code: String?
 }

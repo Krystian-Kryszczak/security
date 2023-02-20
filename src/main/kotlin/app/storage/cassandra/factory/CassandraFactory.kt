@@ -1,9 +1,10 @@
 package app.storage.cassandra.factory
 
 import app.storage.cassandra.dao.DaoMapper
-import app.storage.cassandra.dao.activation.UserActivationDao
+import app.storage.cassandra.dao.security.activation.UserAccountActivationDao
 import app.storage.cassandra.dao.being.user.UserDao
-import app.storage.cassandra.dao.reset.ResetPasswordDao
+import app.storage.cassandra.dao.security.credentials.UserCredentialsDao
+import app.storage.cassandra.dao.security.reset.ResetPasswordDao
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.CqlSession
 import io.micronaut.context.annotation.Factory
@@ -16,13 +17,16 @@ class CassandraFactory(cqlSession: CqlSession) {
 
     @Singleton
     fun daoMapper(): DaoMapper = daoMapper
-
     @Singleton
     fun userDao(): UserDao {
         return daoMapper.userDao(keyspace)
     }
     @Singleton
-    fun userActivationDao(): UserActivationDao {
+    fun userAuthenticationCredentialsDao(): UserCredentialsDao {
+        return daoMapper.userAuthenticationCredentialsDao(keyspace)
+    }
+    @Singleton
+    fun userActivationDao(): UserAccountActivationDao {
         return daoMapper.activationCodeDao(keyspace)
     }
     @Singleton

@@ -1,5 +1,6 @@
-package app.model.reset
+package app.model.security.code.reset
 
+import app.model.security.code.HaveCode
 import app.security.generator.reset.ResetPasswordCodeGenerator
 import com.datastax.oss.driver.api.mapper.annotations.Entity
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey
@@ -10,6 +11,14 @@ import java.util.UUID
 @SchemaHint(targetElement = SchemaHint.TargetElement.TABLE)
 data class ResetPassword(
     @PartitionKey
-    var code: String = ResetPasswordCodeGenerator.generateCode(),
-    var id: UUID? = null
-)
+    override val code: String? = null,
+    val id: UUID? = null
+): HaveCode {
+    companion object {
+        fun createWithGeneratedCode(id: UUID?): ResetPassword =
+            ResetPassword(
+                ResetPasswordCodeGenerator.generateCode(),
+                id
+            )
+    }
+}

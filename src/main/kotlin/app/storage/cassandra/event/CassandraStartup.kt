@@ -16,6 +16,7 @@ class CassandraStartup(private val cqlSession: CqlSession) {
     internal fun onStartupEvent(event: StartupEvent) {
         createKeyspace()
         createUserTable()
+        createUserCredentialsTable()
         createUserModel()
         createActivationCodeTable()
         createResetPasswordTable()
@@ -34,9 +35,16 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withColumn("lastname", DataTypes.TEXT)
             .withColumn("email", DataTypes.TEXT)
             .withColumn("phone_number", DataTypes.TEXT)
-            .withColumn("password", DataTypes.TEXT)
-            .withColumn("date_of_birth", DataTypes.INT)
+            .withColumn("date_of_birth_in_days", DataTypes.INT)
             .withColumn("sex", DataTypes.TINYINT)
+            .build()
+    )
+    private fun createUserCredentialsTable() = execute(
+        SchemaBuilder
+            .createTable("user_credentials")
+            .withPartitionKey("id", DataTypes.TIMEUUID)
+            .withColumn("identity", DataTypes.TEXT)
+            .withColumn("hashed_password", DataTypes.TEXT)
             .build()
     )
     private fun createUserModel() = execute(
@@ -47,7 +55,7 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withField("email", DataTypes.TEXT)
             .withField("password", DataTypes.TEXT)
             .withField("phone_number", DataTypes.TEXT)
-            .withField("date_of_birth", DataTypes.INT)
+            .withField("date_of_birth_in_days", DataTypes.INT)
             .withField("sex", DataTypes.TINYINT)
             .build()
     )

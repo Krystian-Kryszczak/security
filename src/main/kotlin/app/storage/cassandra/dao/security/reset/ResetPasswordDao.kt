@@ -1,6 +1,6 @@
-package app.storage.cassandra.dao.reset
+package app.storage.cassandra.dao.security.reset
 
-import app.model.reset.ResetPassword
+import app.model.security.code.reset.ResetPassword
 import app.storage.cassandra.dao.BaseDao
 import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet
 import com.datastax.oss.driver.api.mapper.annotations.Dao

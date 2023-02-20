@@ -1,8 +1,9 @@
 package app.storage.cassandra.dao
 
-import app.storage.cassandra.dao.activation.UserActivationDao
+import app.storage.cassandra.dao.security.activation.UserAccountActivationDao
 import app.storage.cassandra.dao.being.user.UserDao
-import app.storage.cassandra.dao.reset.ResetPasswordDao
+import app.storage.cassandra.dao.security.credentials.UserCredentialsDao
+import app.storage.cassandra.dao.security.reset.ResetPasswordDao
 import com.datastax.oss.driver.api.core.CqlIdentifier
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.mapper.MapperBuilder
@@ -15,7 +16,9 @@ interface DaoMapper {
     @DaoFactory
     fun userDao(@DaoKeyspace keyspace: CqlIdentifier): UserDao
     @DaoFactory
-    fun activationCodeDao(@DaoKeyspace keyspace: CqlIdentifier): UserActivationDao
+    fun userAuthenticationCredentialsDao(@DaoKeyspace keyspace: CqlIdentifier): UserCredentialsDao
+    @DaoFactory
+    fun activationCodeDao(@DaoKeyspace keyspace: CqlIdentifier): UserAccountActivationDao
     @DaoFactory
     fun resetUserPasswordDao(@DaoKeyspace keyspace: CqlIdentifier): ResetPasswordDao
     companion object {

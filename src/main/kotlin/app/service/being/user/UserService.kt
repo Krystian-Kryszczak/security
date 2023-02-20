@@ -9,7 +9,5 @@ interface UserService {
     fun saveReactive(user: User): Completable
     fun findByIdReactive(id: UUID): Maybe<User>
     fun findByEmailReactive(email: String): Maybe<User>
-    fun findByEmailAndPasswordReactive(email: String, password: String): Maybe<User>
-    fun updatePasswordByIdReactive(id: UUID, password: String): Completable
     fun deleteByIdReactive(id: UUID): Completable
 }

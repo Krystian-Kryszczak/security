@@ -11,10 +11,6 @@ import java.util.UUID
 interface UserDao: ItemDao<User> {
     @Select(customWhereClause = "email = :email", limit = "1", allowFiltering = true)
     fun findByEmailReactive(email: String): MappedReactiveResultSet<User>
-    @Select(customWhereClause = "email = :email AND password = :password", limit = "1", allowFiltering = true)
-    fun findByEmailAndPasswordReactive(email: String, password: String): MappedReactiveResultSet<User>
-    @Query("UPDATE user SET password = ':password' WHERE id = :id")
-    fun updatePasswordByIdReactive(id: UUID, password: String): ReactiveResultSet
     @Delete(entityClass = [User::class])
     fun deleteByIdReactive(id: UUID?): ReactiveResultSet
 }
