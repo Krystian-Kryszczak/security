@@ -11,7 +11,6 @@ abstract class BaseController {
         val id = SecurityUtils.extractClientId(authentication) ?: return Single.just(HttpStatus.CONFLICT)
         return body(id)
     }
-
     protected fun Single<Boolean>.mapBooleanToStatus(ifTrue: HttpStatus, ifFalse: HttpStatus): Single<HttpStatus> =
         map { if (it) ifTrue else ifFalse }
 }

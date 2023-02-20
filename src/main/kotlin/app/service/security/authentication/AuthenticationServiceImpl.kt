@@ -34,9 +34,10 @@ class AuthenticationServiceImpl(
             .toFlowable()
     }
 
-    private fun extractUserAttributes(user: User): Map<String, String> = mapOf(
+    private fun extractUserAttributes(user: User): Map<String, String?> = mapOf(
         "id" to user.id.toString(),
-        "name" to (user.name ?: ""),
-        "lastname" to (user.lastname ?: "")
+        "email" to user.email,
+        "name" to user.name,
+        "lastname" to user.lastname
     )
 }

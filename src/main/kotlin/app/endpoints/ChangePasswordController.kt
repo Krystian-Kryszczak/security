@@ -20,7 +20,8 @@ class ChangePasswordController(private val changePasswordService: UserChangePass
                 .flatMapSingle {
                     code -> changePasswordService.saveResetPassword(code)
                         .flatMap {
-                            changePasswordService.sendChangeUserPasswordCodeToEmail(code, oldPassword)
+                            val email = authentication.attributes["email"] as String? ?: return@flatMap Single.just(false)
+                            changePasswordService.sendChangeUserPasswordCodeToEmail(code, email)
                         }
                 }.defaultIfEmpty(false)
                 .mapBooleanToStatus(HttpStatus.ACCEPTED, HttpStatus.CONFLICT)
