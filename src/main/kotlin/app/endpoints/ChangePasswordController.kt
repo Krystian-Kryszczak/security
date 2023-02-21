@@ -14,9 +14,9 @@ import io.reactivex.rxjava3.core.Single
 @Controller
 class ChangePasswordController(private val changePasswordService: UserChangePasswordService): BaseController() {
     @Post("/change-password", consumes = [MediaType.APPLICATION_FORM_URLENCODED])
-    fun changePassword(oldPassword: String, authentication: Authentication): Single<HttpStatus> =
+    fun generateChangePasswordCodeSaveItAndSendToEmail(actualPassword: String, authentication: Authentication): Single<HttpStatus> =
         runProvidesClientId(authentication) {
-            id -> changePasswordService.generateChangeUserPasswordCode(id, oldPassword)
+            id -> changePasswordService.generateChangeUserPasswordCode(id, actualPassword)
                 .flatMapSingle {
                     code -> changePasswordService.saveResetPassword(code)
                         .flatMap {

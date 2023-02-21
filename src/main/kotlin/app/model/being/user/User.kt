@@ -14,5 +14,5 @@ data class User(
     var email: String? = null,
     var phoneNumber: String? = null,
     var dateOfBirthInDays: Int = 0,
-    var sex: Byte = 0
+    var gender: Byte = 0,
 ): Being(id, name)

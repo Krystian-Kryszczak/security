@@ -1,16 +1,20 @@
 package app.model.being.user
 
 import com.datastax.oss.driver.api.mapper.annotations.Entity
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy
 import com.datastax.oss.driver.api.mapper.annotations.SchemaHint
+import io.micronaut.core.annotation.Introspected
 
 @Entity
+@PropertyStrategy(mutable = false)
 @SchemaHint(targetElement = SchemaHint.TargetElement.UDT)
-class UserModel(
-    var firstname: String? = null,
-    var lastname: String? = null,
-    var email: String? = null,
-    var phoneNumber: String? = null,
-    var password: String? = null,
-    var dateOfBirthInDays: Int = 0,
-    var sex: Byte = 0
+@Introspected
+data class UserModel(
+    val firstname: String? = null,
+    val lastname: String? = null,
+    val email: String? = null,
+    val phoneNumber: String? = null,
+    val password: String? = null,
+    val dateOfBirthInDays: Int = 0,
+    val gender: Byte = 0,
 )

@@ -36,14 +36,14 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withColumn("email", DataTypes.TEXT)
             .withColumn("phone_number", DataTypes.TEXT)
             .withColumn("date_of_birth_in_days", DataTypes.INT)
-            .withColumn("sex", DataTypes.TINYINT)
+            .withColumn("gender", DataTypes.TINYINT)
             .build()
     )
     private fun createUserCredentialsTable() = execute(
         SchemaBuilder
             .createTable("user_credentials").ifNotExists()
             .withPartitionKey("id", DataTypes.TIMEUUID)
-            .withColumn("identity", DataTypes.TEXT)
+            .withColumn("username", DataTypes.TEXT)
             .withColumn("hashed_password", DataTypes.TEXT)
             .build()
     )
@@ -56,7 +56,7 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withField("password", DataTypes.TEXT)
             .withField("phone_number", DataTypes.TEXT)
             .withField("date_of_birth_in_days", DataTypes.INT)
-            .withField("sex", DataTypes.TINYINT)
+            .withField("gender", DataTypes.TINYINT)
             .build()
     )
     private fun createActivationCodeTable() =

@@ -28,10 +28,21 @@ class UserRegistrationServiceImpl(
             logger.info("Invalid user password!${if (userModel.email != null) " User email: ${userModel.email}" else ""}")
             return Single.just(false)
         }
-        userModel.password = passwordEncoder.encode(userModel.password!!)
-        return generateActivationCodeForUser(userModel)
+
+        if (userModel.password == null) return Single.just(false)
+        val modelWithEncodedPassword = UserModel(
+            userModel.firstname,
+            userModel.lastname,
+            userModel.email,
+            userModel.phoneNumber,
+            passwordEncoder.encode(userModel.password), // <---
+            userModel.dateOfBirthInDays,
+            userModel.gender
+        )
+
+        return generateActivationCodeForUser(modelWithEncodedPassword)
             .flatMap { code -> run {
-                val email: String = userModel.email ?: return@run Single.just(false)
+                val email: String = modelWithEncodedPassword.email ?: return@run Single.just(false)
                 logger.info("The activation code `$code` will be sent to the email address $email")
                 smtpMailerService.sendUserActivationCode(email, code)
             }}.onErrorReturn {
