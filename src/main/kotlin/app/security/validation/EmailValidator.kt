@@ -2,18 +2,14 @@ package app.security.validation
 
 object EmailValidator {
     /**
-     * Returns true if email is valid,
-     * otherwise email is invalid.
+     * [a-zA-Z0-9-.]{1,128} - first part
+     * @{1} - one at separator
+     * [a-zA-Z0-9-.]{0,211} - domain
+     * [a-zA-Z0-9]{2,13} - anti double ".." dot
+     * \\.{1} - one dot separator
+     * [a-z]{2,13} - domain extension (for example: en, international)
      */
-    fun validate(email: String): Boolean {
-        if (email.isBlank()) return false
-        if (! email.matches(Regex("^(.+)@(\\S+)$"))) return false
-        return email.hasOnlyOneAtSign()
-                && email.hasOnlyOneDotAfterAtSign()
-                    && email.endsWithCorrectSuffix() // TODO refactor
-    }
+    private val regex = Regex("^[a-zA-Z0-9-.]{1,128}@{1}[a-zA-Z0-9-.]{0,211}[a-zA-Z0-9]{2,13}\\.{1}[a-z]{2,13}\$")
 
-    private fun String.hasOnlyOneAtSign() = this.count { it == '@' } == 1
-    private fun String.hasOnlyOneDotAfterAtSign() = this.substringAfter('@').count { it == '.' } == 1
-    private fun String.endsWithCorrectSuffix() = this.substringAfter('@').matches(Regex("[a-zA-Z]+\\.[a-zA-Z]+"))
+    fun validate(email: String): Boolean = email.matches(regex)
 }

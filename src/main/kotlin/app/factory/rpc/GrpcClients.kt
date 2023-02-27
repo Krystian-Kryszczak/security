@@ -1,6 +1,6 @@
 package app.factory.rpc
 
-import app.MailerServiceGrpc
+import app.SmtpMailerServiceGrpc
 import io.grpc.ManagedChannelBuilder
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Property
@@ -20,7 +20,7 @@ class GrpcClients(
     private val mailerMaxRetryAttempts: String,
 ) {
     @Singleton
-    fun mailer(): MailerServiceGrpc.MailerServiceStub {
+    fun mailer(): SmtpMailerServiceGrpc.SmtpMailerServiceStub {
         var builder = ManagedChannelBuilder.forTarget(mailerAddress)
 
         if (mailerUsePlaintext.toBooleanStrictOrNull() == true)
@@ -31,6 +31,6 @@ class GrpcClients(
         if (mailerMaxRetryAttempts != null)
             builder = builder.maxRetryAttempts(mailerMaxRetryAttempts)
 
-        return MailerServiceGrpc.newStub(builder.build())
+        return SmtpMailerServiceGrpc.newStub(builder.build())
     }
 }

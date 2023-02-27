@@ -2,7 +2,7 @@ package app.service.mailer.smtp
 
 import app.MailerReply
 import app.MailerRequest
-import app.MailerServiceGrpc.MailerServiceStub
+import app.SmtpMailerServiceGrpc.SmtpMailerServiceStub
 import io.grpc.stub.StreamObserver
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -11,14 +11,14 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @Singleton
-class SmtpMailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): SmtpMailerService {
+class SmtpMailerServiceGrpc(private val smtpMailerServiceStub: SmtpMailerServiceStub): SmtpMailerService {
     private fun requestWithAddressAndContent(receiverAddress: String, content: String): MailerRequest =
         MailerRequest.newBuilder().setAddress(receiverAddress).setContent(content).build()
 
     override fun sendUserActivationCode(receiverAddress: String, activationCode: String): Single<Boolean> {
         val request = requestWithAddressAndContent(receiverAddress, activationCode)
         return asObservable<MailerReply> {
-            streamObserver -> mailerServiceStub.sendUserActivationCode(request,     streamObserver)
+            streamObserver -> smtpMailerServiceStub.sendUserActivationCode(request,     streamObserver)
         }.doAfterNext {
             logger.info("sendUserActivationCode result -> ${it.successful}")
         }.transformToBooleanWithCatchingErrors()
@@ -27,7 +27,7 @@ class SmtpMailerServiceGrpc(private val mailerServiceStub: MailerServiceStub): S
     override fun sendUserResetPasswordCode(receiverAddress: String, resetPasswordCode: String): Single<Boolean> {
         val request = requestWithAddressAndContent(receiverAddress, resetPasswordCode)
         return asObservable<MailerReply> {
-            streamObserver -> mailerServiceStub.sendUserResetPasswordCode(request, streamObserver)
+            streamObserver -> smtpMailerServiceStub.sendUserResetPasswordCode(request, streamObserver)
         }.doAfterNext {
             logger.info("sendUserResetPasswordCode result -> ${it.successful}")
         }.transformToBooleanWithCatchingErrors()
