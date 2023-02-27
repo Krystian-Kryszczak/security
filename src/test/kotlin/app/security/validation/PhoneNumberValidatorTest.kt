@@ -3,7 +3,7 @@ package app.security.validation
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-class PhoneNumberValidatorTest: StringSpec({ // TODO refactor
+class PhoneNumberValidatorTest: StringSpec({
     fun List<String>.withoutSpaces(): List<String> = map { it.replace(" ", "") }
 
     val correctPhoneNumbers = listOf(
@@ -25,16 +25,12 @@ class PhoneNumberValidatorTest: StringSpec({ // TODO refactor
     .withoutSpaces()
 
     "correct phone numbers test" {
-        val validatedPhoneNumbersResults = correctPhoneNumbers.map {
-            val res = PhoneNumberValidator.validate(it)
-            if (!res) println(it)
-            return@map res
-        }
-        validatedPhoneNumbersResults.forEach { isValid -> isValid shouldBe true }
+        val validatedPhoneNumbersResults = correctPhoneNumbers.map { PhoneNumberValidator.validate(it) }
+        validatedPhoneNumbersResults.forEach { it shouldBe true }
     }
 
     "incorrect phone numbers test" {
         val validatedPhoneNumbersResults = incorrectPhoneNumbers.map { PhoneNumberValidator.validate(it) }
-        validatedPhoneNumbersResults.forEach { isValid -> isValid shouldBe false }
+        validatedPhoneNumbersResults.forEach { it shouldBe false }
     }
 })
