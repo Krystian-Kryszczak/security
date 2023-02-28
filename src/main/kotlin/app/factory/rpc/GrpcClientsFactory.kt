@@ -1,13 +1,16 @@
 package app.factory.rpc
 
+import app.PopMailerServiceGrpc
 import app.SmtpMailerServiceGrpc
+import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Property
+import jakarta.inject.Named
 import jakarta.inject.Singleton
 
 @Factory
-class GrpcClients(
+class GrpcClientsFactory(
     @Property(name = "grpc.client.max-retry-attempts")
     clientMaxRetryAttempts: String,
     private val clientMaxRetryAttemptsAsInt: Int? = clientMaxRetryAttempts.toIntOrNull(),
@@ -20,7 +23,8 @@ class GrpcClients(
     private val mailerMaxRetryAttempts: String,
 ) {
     @Singleton
-    fun mailer(): SmtpMailerServiceGrpc.SmtpMailerServiceStub {
+    @Named("mailer")
+    fun getMailerServiceManagedChannel(): ManagedChannel {
         var builder = ManagedChannelBuilder.forTarget(mailerAddress)
 
         if (mailerUsePlaintext.toBooleanStrictOrNull() == true)
@@ -31,6 +35,14 @@ class GrpcClients(
         if (mailerMaxRetryAttempts != null)
             builder = builder.maxRetryAttempts(mailerMaxRetryAttempts)
 
-        return SmtpMailerServiceGrpc.newStub(builder.build())
+        return builder.build()
     }
+
+    @Singleton
+    fun smtpMailerServiceStub(@Named("mailer") channel: ManagedChannel): SmtpMailerServiceGrpc.SmtpMailerServiceStub =
+        SmtpMailerServiceGrpc.newStub(channel)
+
+    @Singleton
+    fun popMailerServiceStub(@Named("mailer") channel: ManagedChannel): PopMailerServiceGrpc.PopMailerServiceStub =
+        PopMailerServiceGrpc.newStub(channel)
 }

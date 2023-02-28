@@ -37,7 +37,7 @@ data class UserAccountActivation(
             email = model.email,
             phoneNumber = model.phoneNumber,
             dateOfBirthInDays = model.dateOfBirthInDays,
-            gender = model.gender
+            sex = model.sex
         )
     }
 }

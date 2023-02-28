@@ -16,5 +16,5 @@ data class UserModel(
     val phoneNumber: String? = null,
     val password: String? = null,
     val dateOfBirthInDays: Int = 0,
-    val gender: Byte = 0,
+    val sex: Byte = 0,
 )

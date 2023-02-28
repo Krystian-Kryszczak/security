@@ -36,7 +36,7 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withColumn("email", DataTypes.TEXT)
             .withColumn("phone_number", DataTypes.TEXT)
             .withColumn("date_of_birth_in_days", DataTypes.INT)
-            .withColumn("gender", DataTypes.TINYINT)
+            .withColumn("sex", DataTypes.TINYINT)
             .build()
     )
     private fun createUserCredentialsTable() = execute(
@@ -56,13 +56,19 @@ class CassandraStartup(private val cqlSession: CqlSession) {
             .withField("password", DataTypes.TEXT)
             .withField("phone_number", DataTypes.TEXT)
             .withField("date_of_birth_in_days", DataTypes.INT)
-            .withField("gender", DataTypes.TINYINT)
+            .withField("sex", DataTypes.TINYINT)
             .build()
     )
-    private fun createActivationCodeTable() =
-        execute("CREATE TABLE IF NOT EXISTS user_activation (code text PRIMARY KEY,user_email text,user_model user_model)")
-    private fun createResetPasswordTable() =
-        execute("CREATE TABLE IF NOT EXISTS reset_password (code text PRIMARY KEY,id timeuuid)")
+    private fun createActivationCodeTable() = execute(
+        "CREATE TABLE IF NOT EXISTS user_activation (code text PRIMARY KEY,user_email text,user_model user_model)"
+    )
+    private fun createResetPasswordTable() = execute(
+        SchemaBuilder
+            .createTable("reset_password").ifNotExists()
+            .withPartitionKey("code", DataTypes.TEXT)
+            .withColumn("id", DataTypes.TIMEUUID)
+            .build()
+    )
     private fun execute(statement: SimpleStatement) {
         cqlSession.execute(statement)
         logger.info("Query \"${statement.query}\" was executed.")

@@ -56,7 +56,7 @@ message FolderAndMsgNums {
 }
 message FolderAndMsgNum {
   string folder = 1;
-  uint32 msgnums = 2;
+  uint32 msgnum = 2;
 }
 message FolderAndStartAndEnd {
   string folder = 1;

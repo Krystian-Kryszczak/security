@@ -1,6 +1,5 @@
 package app.endpoints
 
-import app.utils.SecurityUtils
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.security.annotation.Secured
@@ -9,13 +8,13 @@ import io.micronaut.security.rules.SecurityRule
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/extract-attributes")
-class ExtractJwtAttributesController {
+class ExtractJwtAttributesController: BaseController() {
     @Get
     fun readAttributes(authentication: Authentication): Map<String, Any> {
         val attributes = authentication.attributes
         val outputData = mutableMapOf<String, Any>()
 
-        val clientId = SecurityUtils.extractClientId(authentication)
+        val clientId = authentication.extractClientId()
         if (clientId != null)
             outputData["id"] = clientId
 

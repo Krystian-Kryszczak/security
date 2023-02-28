@@ -37,7 +37,7 @@ class UserRegistrationServiceImpl(
             userModel.phoneNumber,
             passwordEncoder.encode(userModel.password), // <---
             userModel.dateOfBirthInDays,
-            userModel.gender
+            userModel.sex
         )
 
         return generateActivationCodeForUser(modelWithEncodedPassword)
