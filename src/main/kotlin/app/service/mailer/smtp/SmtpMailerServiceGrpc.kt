@@ -18,7 +18,7 @@ class SmtpMailerServiceGrpc(private val smtpMailerServiceStub: SmtpMailerService
     override fun sendUserActivationCode(receiverAddress: String, activationCode: String): Single<Boolean> {
         val request = requestWithAddressAndContent(receiverAddress, activationCode)
         return asObservable<MailerReply> {
-            streamObserver -> smtpMailerServiceStub.sendUserActivationCode(request,     streamObserver)
+            streamObserver -> smtpMailerServiceStub.sendUserActivationCode(request, streamObserver)
         }.doAfterNext {
             logger.info("sendUserActivationCode result -> ${it.successful}")
         }.transformToBooleanWithCatchingErrors()
