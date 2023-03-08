@@ -14,19 +14,13 @@ import org.slf4j.LoggerFactory
 class CassandraStartup(private val cqlSession: CqlSession) {
     @EventListener
     internal fun onStartupEvent(event: StartupEvent) {
-        createKeyspace()
+        event.source
         createUserTable()
         createUserCredentialsTable()
         createUserModel()
         createActivationCodeTable()
         createResetPasswordTable()
     }
-    private fun createKeyspace() = execute(
-        SchemaBuilder
-            .createKeyspace(cqlSession.keyspace.get()).ifNotExists()
-            .withSimpleStrategy(2)
-            .build()
-    )
     private fun createUserTable() = execute(
         SchemaBuilder
             .createTable("user").ifNotExists()
